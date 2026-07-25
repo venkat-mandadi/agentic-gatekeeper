@@ -1,0 +1,72 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {"name": "payments-api", "namespace": "payments-prod", "labels": {"team": "payments"}},
+      "spec": {"template": {"spec": {"containers": [
+        {"name": "app", "image": "gcr.io/acme/payments-api:v2.3.1",
+         "livenessProbe": {"httpGet": {"path": "/healthz", "port": 8080}},
+         "readinessProbe": {"httpGet": {"path": "/ready", "port": 8080}},
+         "resources": {"requests": {"cpu": "250m", "memory": "512Mi"},
+                       "limits": {"cpu": "500m", "memory": "1Gi"}}}
+      ]}}}
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {"name": "catalog-web", "namespace": "catalog-prod"},
+      "spec": {"template": {"spec": {"containers": [
+        {"name": "web", "image": "nginx:latest",
+         "livenessProbe": {"httpGet": {"path": "/", "port": 80}}}
+      ]}}}
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {"name": "legacy-worker", "namespace": "legacy-prod"},
+      "spec": {"template": {"spec": {"containers": [
+        {"name": "worker", "image": "myrepo/worker:1.4",
+         "livenessProbe": {"httpGet": {"path": "/healthz", "port": 9000}},
+         "readinessProbe": {"httpGet": {"path": "/ready", "port": 9000}}}
+      ]}}}
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {"name": "analytics", "namespace": "analytics-prod"},
+      "spec": {"template": {"spec": {"containers": [
+        {"name": "analytics", "image": "gcr.io/acme/analytics:v1.0.0",
+         "livenessProbe": {"httpGet": {"path": "/healthz", "port": 8000}},
+         "readinessProbe": {"httpGet": {"path": "/ready", "port": 8000}}}
+      ]}}}
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {"name": "payments-svc", "namespace": "payments-prod"},
+      "spec": {"selector": {"app": "payments-api"}, "ports": [{"port": 80, "targetPort": 8080}]}
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {"name": "catalog-svc", "namespace": "catalog-prod",
+        "annotations": {"cloud.google.com/backend-config": "{\"default\": \"catalog-bec\"}"}},
+      "spec": {"selector": {"app": "catalog-web"}, "ports": [{"port": 80, "targetPort": 80}]}
+    },
+    {
+      "apiVersion": "cloud.google.com/v1",
+      "kind": "BackendConfig",
+      "metadata": {"name": "payments-bec", "namespace": "payments-prod"},
+      "spec": {"timeoutSec": 30}
+    },
+    {
+      "apiVersion": "cloud.google.com/v1",
+      "kind": "BackendConfig",
+      "metadata": {"name": "catalog-bec", "namespace": "catalog-prod"},
+      "spec": {"securityPolicy": {"name": "acme-cloud-armor-policy"}}
+    }
+  ]
+}
