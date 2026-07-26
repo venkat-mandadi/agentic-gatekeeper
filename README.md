@@ -11,6 +11,9 @@ plain `kubectl -o json` dump: *what violates the policies we enforce today*, and
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
 </p>
 
+![demo](assets/agentic-gatekeeper-demo.gif)
+
+
 > Modeled on the policy-as-code guardrails I run in production with OPA
 > Gatekeeper and `gator`. It's the offline evaluator idea — test policy against
 > manifests without a live admission webhook — turned into an agent skill.
