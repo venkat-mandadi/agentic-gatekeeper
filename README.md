@@ -15,11 +15,12 @@ plain `kubectl -o json` dump: *what violates the policies we enforce today*, and
 > Gatekeeper and `gator`. It's the offline evaluator idea — test policy against
 > manifests without a live admission webhook — turned into an agent skill.
 
-**Two layers, on purpose.** A thin Claude **skill** ([`SKILL.md`](SKILL.md))
+**One skill, one engine.** A thin Claude **skill** ([`SKILL.md`](SKILL.md))
 orchestrates — load the dump, run the audit or the what-if, explain the
-violations, propose fixes. A Python **engine** (`src/gatekeeper_guard/`) runs the
-deterministic policy checks. The agent spends its tokens on judgment and
-communication, not on grinding through raw manifests.
+violations, propose fixes. The deterministic policy matching runs in a Python
+**engine** (`src/gatekeeper_guard/`). The model does the explaining and the
+fix suggestions; the engine does the matching. Nobody burns tokens parsing
+manifests by hand.
 
 ---
 

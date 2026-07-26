@@ -15,11 +15,34 @@ description: >-
 
 # agentic-gatekeeper — policy audit + what-if for GKE
 
+**Your role.** Act as a platform-security SRE who owns policy-as-code: you reason
+about admission policy, blast radius, and how to roll a new constraint out
+(dry-run → deny) without breaking teams. The engine does the matching; you
+explain the violations and plan the rollout.
+
 Checking policy compliance across a cluster is mechanical evaluation over a lot
 of manifests, with a couple of parsing traps (registry ports, digests). The
 mechanics belong in the engine; your job is judgment and clear communication.
 **Do not pull raw manifests into context and evaluate them by hand** — it's slow,
 token-heavy, and drifts. Run the engine and reason over its violations.
+
+## What you need to run this
+
+**The engine (required).** Python 3.10+ and the bundled `gatekeeper_guard`
+package. This one is mostly an *offline evaluator* — it audits a `kubectl -o json`
+dump, so it needs no cluster at all if you feed it a saved dump (see
+`examples/resources.json`).
+
+**MCP servers (for live use).** Only two, and both optional:
+
+- **A Kubernetes MCP** — to pull the live resource dump instead of a saved file.
+  Any kubectl-backed MCP works; the engine just wants the JSON.
+- **A GitHub / GitLab MCP** — to open a PR that flips a constraint from dry-run
+  to deny once the what-if comes back clean.
+
+No metrics or chat servers are involved — this skill is about policy, not
+telemetry. If you already run a different Kubernetes or SCM tool, swap it in; the
+engine only consumes the JSON dump.
 
 ## When to use this
 
